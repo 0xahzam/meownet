@@ -1,0 +1,15 @@
+[package]
+name = "meownet"
+version = "0.1.0"
+edition = "2021"
+
+[profile.release]
+opt-level = 3    # Optimize for speed (numeric value)
+panic = "abort"  # Abort on panic to potentially improve performance
+lto = true       # Enable Link-Time Optimization for improved speed
+
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+
+[dependencies]
