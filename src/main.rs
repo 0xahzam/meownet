@@ -1,3 +1,4 @@
+use std::vec;
 mod engine;
 
 fn main() {
@@ -54,4 +55,19 @@ fn main() {
     println!("w1 grd        :: {}", w1.grad);
     println!("x2 grd        :: {}", x2.grad);
     println!("w2 grd        :: {}", w2.grad);
+
+    println!("\nA SINGLE NEURON\n");
+    let xn = vec![2.0, 3.0];
+    let nn = engine::Neuron::new(2);
+    println!("{:#?}", nn.call(&xn));
+
+    println!("\nLAYER OF NEURONS\n");
+    let xl = vec![2.0, 3.0];
+    let ln = engine::Layer::new(2, 3);
+    println!("{:#?}", ln.call(&xl));
+
+    println!("\nMLP'S FINAL NEURON\n");
+    let xmlp = vec![2.0, 3.0, -1.0];
+    let mpln = engine::MLP::new(2, vec![4, 4, 1]);
+    println!("{:#?}", mpln.call(&xmlp))
 }

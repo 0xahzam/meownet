@@ -1,6 +1,8 @@
+use rand::Rng;
 use std::fmt;
 use std::ops::{Add, Div, Mul, Sub};
 
+#[derive(Debug)]
 // Initializing Value struct
 pub(crate) struct Value {
     pub data: f64,
@@ -134,5 +136,89 @@ impl Div for &Value {
             grad: self.grad,
             op: "/".to_string(),
         }
+    }
+}
+
+#[derive(Debug)]
+// Neuron
+pub(crate) struct Neuron {
+    pub w: Vec<Value>,
+    pub b: Value,
+}
+
+impl Neuron {
+    pub fn new(nin: i64) -> Self {
+        let mut rng = rand::thread_rng();
+        Neuron {
+            w: (0..nin)
+                .map(|_| Value::new(rng.gen_range(-1.0..1.0)))
+                .collect(),
+            b: Value::new(rng.gen_range(-1.0..1.0)),
+        }
+    }
+
+    pub fn call(&self, x: &Vec<f64>) -> Value {
+        let act_data: f64 = self
+            .w
+            .iter()
+            .zip(x.iter())
+            .map(|(&ref wi, &xi)| wi.data * xi)
+            .sum::<f64>()
+            + self.b.data;
+
+        let out = Value::new(act_data);
+        return out.relu();
+    }
+}
+
+#[derive(Debug)]
+// Layer struct
+pub(crate) struct Layer {
+    neurons: Vec<Neuron>,
+}
+
+impl Layer {
+    pub fn new(nin: i64, nout: i64) -> Self {
+        Layer {
+            neurons: (0..nout).map(|_| Neuron::new(nin)).collect(),
+        }
+    }
+
+    pub fn call(&self, x: &Vec<f64>) -> Vec<Value> {
+        self.neurons.iter().map(|neuron| neuron.call(x)).collect()
+    }
+}
+
+#[derive(Debug)]
+// MLP struct
+pub(crate) struct MLP {
+    layers: Vec<Layer>,
+}
+
+impl MLP {
+    pub fn new(nin: i64, nouts: Vec<i64>) -> Self {
+        let mut sz = Vec::new();
+        sz.push(nin);
+        for &nout in &nouts {
+            sz.push(nout);
+        }
+
+        let layers = sz
+            .iter()
+            .zip(sz.iter().skip(1))
+            .map(|(&input_size, &output_size)| Layer::new(input_size, output_size))
+            .collect();
+
+        MLP { layers }
+    }
+
+    pub fn call(&self, x: &Vec<f64>) -> Vec<Value> {
+        let mut output = x.clone();
+        for layer in &self.layers {
+            let values = layer.call(&output);
+            output = values.iter().map(|value| value.data).collect();
+        }
+        let wrapped_output = output.iter().map(|&value| Value::new(value)).collect();
+        wrapped_output
     }
 }
