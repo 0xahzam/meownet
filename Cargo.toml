@@ -13,3 +13,4 @@ lto = true       # Enable Link-Time Optimization for improved speed
 
 
 [dependencies]
+rand = "0.8.5"
